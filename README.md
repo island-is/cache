@@ -167,6 +167,10 @@ steps:
 
 > Note: The `id` defined in `actions/cache` must match the `id` in the `if` statement (i.e. `steps.[ID].outputs.cache-hit`)
 
+## Custom cache server
+
+To use a custom cache server, set the environment variable `GITHUB_ACTIONS_CACHE_URL` or use the input `cache-url`.
+
 ## Contributing
 We would love for you to contribute to `actions/cache`, pull requests are welcome! Please see the [CONTRIBUTING.md](CONTRIBUTING.md) for more information.
 
