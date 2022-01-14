@@ -12,6 +12,7 @@ async function run(): Promise<void> {
                 "Cache action is not supported on GHES. See https://github.com/actions/cache/issues/505 for more details"
             );
             utils.setCacheHitOutput(false);
+            utils.setSuccessOutput(false);
             return;
         }
 
@@ -54,6 +55,7 @@ async function run(): Promise<void> {
 
             const isExactKeyMatch = utils.isExactKeyMatch(primaryKey, cacheKey);
             utils.setCacheHitOutput(isExactKeyMatch);
+            utils.setSuccessOutput(true);
 
             core.info(`Cache restored from key: ${cacheKey}`);
         } catch (error) {
@@ -62,6 +64,7 @@ async function run(): Promise<void> {
             } else {
                 utils.logWarning(error.message);
                 utils.setCacheHitOutput(false);
+                utils.setSuccessOutput(false);
             }
         }
     } catch (error) {

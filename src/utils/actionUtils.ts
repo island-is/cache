@@ -31,6 +31,10 @@ export function setCacheState(state: string): void {
     core.saveState(State.CacheMatchedKey, state);
 }
 
+export function setSuccessOutput(isSuccess: boolean): void {
+    core.setOutput(Outputs.Success, isSuccess.toString());
+}
+
 export function setCacheHitOutput(isCacheHit: boolean): void {
     core.setOutput(Outputs.CacheHit, isCacheHit.toString());
 }

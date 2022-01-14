@@ -43,6 +43,7 @@ Create a workflow `.yml` file in your repositories `.github/workflows` directory
 ### Outputs
 
 * `cache-hit` - A boolean value to indicate an exact match was found for the key
+* `success` - A boolean value to indicate whether the action ran successfully
 
 > See [Skipping steps based on cache-hit](#Skipping-steps-based-on-cache-hit) for info on using this output
 

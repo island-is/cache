@@ -4609,6 +4609,7 @@ var Inputs;
 var Outputs;
 (function (Outputs) {
     Outputs["CacheHit"] = "cache-hit";
+    Outputs["Success"] = "success";
 })(Outputs = exports.Outputs || (exports.Outputs = {}));
 var State;
 (function (State) {
@@ -36328,7 +36329,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getInputAsInt = exports.getInputAsArray = exports.isValidEvent = exports.logWarning = exports.getCacheState = exports.setOutputAndState = exports.setCacheHitOutput = exports.setCacheState = exports.setActionsCacheUrl = exports.isExactKeyMatch = exports.isGhes = void 0;
+exports.getInputAsInt = exports.getInputAsArray = exports.isValidEvent = exports.logWarning = exports.getCacheState = exports.setOutputAndState = exports.setCacheHitOutput = exports.setSuccessOutput = exports.setCacheState = exports.setActionsCacheUrl = exports.isExactKeyMatch = exports.isGhes = void 0;
 const core = __importStar(__webpack_require__(470));
 const constants_1 = __webpack_require__(196);
 function isGhes() {
@@ -36357,6 +36358,10 @@ function setCacheState(state) {
     core.saveState(constants_1.State.CacheMatchedKey, state);
 }
 exports.setCacheState = setCacheState;
+function setSuccessOutput(isSuccess) {
+    core.setOutput(constants_1.Outputs.Success, isSuccess.toString());
+}
+exports.setSuccessOutput = setSuccessOutput;
 function setCacheHitOutput(isCacheHit) {
     core.setOutput(constants_1.Outputs.CacheHit, isCacheHit.toString());
 }
@@ -46733,6 +46738,7 @@ function run() {
             if (utils.isGhes()) {
                 utils.logWarning("Cache action is not supported on GHES. See https://github.com/actions/cache/issues/505 for more details");
                 utils.setCacheHitOutput(false);
+                utils.setSuccessOutput(false);
                 return;
             }
             // Validate inputs, this can cause task failure
@@ -46759,6 +46765,7 @@ function run() {
                 utils.setCacheState(cacheKey);
                 const isExactKeyMatch = utils.isExactKeyMatch(primaryKey, cacheKey);
                 utils.setCacheHitOutput(isExactKeyMatch);
+                utils.setSuccessOutput(true);
                 core.info(`Cache restored from key: ${cacheKey}`);
             }
             catch (error) {
@@ -46768,6 +46775,7 @@ function run() {
                 else {
                     utils.logWarning(error.message);
                     utils.setCacheHitOutput(false);
+                    utils.setSuccessOutput(false);
                 }
             }
         }

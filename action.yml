@@ -20,6 +20,8 @@ inputs:
 outputs:
   cache-hit:
     description: 'A boolean value to indicate an exact match was found for the primary key'
+  success:
+    description: 'A boolean value to indicate whether the action ran successfully'
 runs:
   using: 'node12'
   main: 'dist/restore/index.js'
