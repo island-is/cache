@@ -46775,7 +46775,12 @@ function run() {
                 else {
                     utils.logWarning(error.message);
                     utils.setCacheHitOutput(false);
-                    utils.setSuccessOutput(false);
+                    if (error.message === "Cache service responded with 404") {
+                        utils.setSuccessOutput(true);
+                    }
+                    else {
+                        utils.setSuccessOutput(false);
+                    }
                 }
             }
         }
