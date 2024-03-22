@@ -38,6 +38,7 @@ async function run(): Promise<void> {
         }
 
         const forceCacheSave = core.getInput("force-cache-save") === "true";
+        console.log("forceCacheSave: ", forceCacheSave);
 
         if (!forceCacheSave && utils.isExactKeyMatch(primaryKey, state)) {
             core.info(
