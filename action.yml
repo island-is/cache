@@ -17,6 +17,10 @@ inputs:
   cache-url:
     description: 'The URL of the cache server'
     required: false
+  force-cache-save:
+    description: 'Force cache saving regardless of the action outcome.'
+    required: false
+    default: 'false'
 outputs:
   cache-hit:
     description: 'A boolean value to indicate an exact match was found for the primary key'
