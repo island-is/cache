@@ -16,13 +16,24 @@ async function run(): Promise<void> {
             return;
         }
 
-        // Validate inputs, this can cause task failure
         if (!utils.isValidEvent()) {
             utils.logWarning(
                 `Event Validation Error: The event type ${
                     process.env[Events.Key]
                 } is not supported because it's not tied to a branch or tag ref.`
             );
+            return;
+        }
+
+        const forceCacheSave = utils.getInputAsBool(Inputs.ForceCacheSave, {
+            required: false
+        });
+
+        if (forceCacheSave) {
+            core.info(
+                `forceCacheSave is ${forceCacheSave}, setting CacheHitOutput as false`
+            );
+            utils.setCacheHitOutput(false); // Indicate that cache hit is false because we're skipping cache restoration.
             return;
         }
 
@@ -47,32 +58,26 @@ async function run(): Promise<void> {
                         ...restoreKeys
                     ].join(", ")}`
                 );
+                utils.setCacheHitOutput(false);
                 return;
             }
 
-            // Store the matched cache key
             utils.setCacheState(cacheKey);
-
             const isExactKeyMatch = utils.isExactKeyMatch(primaryKey, cacheKey);
             utils.setCacheHitOutput(isExactKeyMatch);
-            utils.setSuccessOutput(true);
-
             core.info(`Cache restored from key: ${cacheKey}`);
         } catch (error) {
-            if (error.name === cache.ValidationError.name) {
-                throw error;
+            const err = error as Error; // Type assertion here
+            if (err.name === cache.ValidationError.name) {
+                throw err;
             } else {
-                utils.logWarning(error.message);
-                utils.setCacheHitOutput(false);
-                if (error.message === "Cache service responded with 404") {
-                    utils.setSuccessOutput(true);
-                } else {
-                    utils.setSuccessOutput(false);
-                }
+                core.error(err.message);
+                utils.setCacheHitOutput(false); // Ensure cache hit is false on error.
             }
         }
     } catch (error) {
-        core.setFailed(error.message);
+        const err = error as Error; // Type assertion here
+        core.setFailed(err.message);
     }
 }
 

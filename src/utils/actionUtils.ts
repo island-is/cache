@@ -87,3 +87,15 @@ export function getInputAsInt(
     }
     return value;
 }
+
+export function getInputAsBool(
+    name: string,
+    options?: core.InputOptions
+): boolean {
+    const value = core
+        .getInput(name, options)
+        .trim()
+        .toLowerCase();
+
+    return value === "true" ? true : false;
+}

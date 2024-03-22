@@ -4,9 +4,9 @@ import * as core from "@actions/core";
 import { Events, Inputs, State } from "./constants";
 import * as utils from "./utils/actionUtils";
 
-// Catch and log any unhandled exceptions.  These exceptions can leak out of the uploadChunk method in
+// Catch and log any unhandled exceptions. These exceptions can leak out of the uploadChunk method in
 // @actions/toolkit when a failed upload closes the file descriptor causing any in-process reads to
-// throw an uncaught exception.  Instead of failing this action, just warn.
+// throw an uncaught exception. Instead of failing this action, just warn.
 process.on("uncaughtException", e => utils.logWarning(e.message));
 
 async function run(): Promise<void> {
@@ -33,11 +33,15 @@ async function run(): Promise<void> {
         // Inputs are re-evaluted before the post action, so we want the original key used for restore
         const primaryKey = core.getState(State.CachePrimaryKey);
         if (!primaryKey) {
-            utils.logWarning(`Error retrieving key from state.`);
+            utils.logWarning("Error retrieving key from state.");
             return;
         }
 
-        if (utils.isExactKeyMatch(primaryKey, state)) {
+        const forceCacheSave = utils.getInputAsBool(Inputs.ForceCacheSave, {
+            required: false
+        });
+
+        if (!forceCacheSave && utils.isExactKeyMatch(primaryKey, state)) {
             core.info(
                 `Cache hit occurred on the primary key ${primaryKey}, not saving cache.`
             );
@@ -52,18 +56,30 @@ async function run(): Promise<void> {
             await cache.saveCache(cachePaths, primaryKey, {
                 uploadChunkSize: utils.getInputAsInt(Inputs.UploadChunkSize)
             });
-            core.info(`Cache saved with key: ${primaryKey}`);
+            const message = forceCacheSave
+                ? `Cache force save enabled`
+                : `Cache saved`;
+            core.info(`${message} with key: ${primaryKey}`);
         } catch (error) {
-            if (error.name === cache.ValidationError.name) {
-                throw error;
-            } else if (error.name === cache.ReserveCacheError.name) {
-                core.info(error.message);
+            if (error instanceof Error) {
+                if (error.name === cache.ValidationError.name) {
+                    throw error;
+                } else if (error.name === cache.ReserveCacheError.name) {
+                    core.info(error.message);
+                } else {
+                    utils.logWarning(error.message);
+                }
             } else {
-                utils.logWarning(error.message);
+                // Handle cases where the caught thing is not an Error object
+                utils.logWarning("An unexpected error occurred.");
             }
         }
     } catch (error) {
-        utils.logWarning(error.message);
+        if (error instanceof Error) {
+            utils.logWarning(error.message);
+        } else {
+            utils.logWarning("An unexpected error occurred.");
+        }
     }
 }
 
